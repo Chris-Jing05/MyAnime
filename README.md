@@ -5,13 +5,7 @@ A full-stack anime tracking and recommendation platform built with Next.js, Nest
 ## Features
 
 - **Anime Browsing**: Search and discover anime using AniList API integration
-- **Episode Tracking**: ✅ **FULLY IMPLEMENTED**
-  - Click episodes to mark as watched
-  - Visual progress bars and completion percentages
-  - Continue Watching section on homepage
-  - Filler episode indicators from FillerList API
-  - Auto-status updates (WATCHING → COMPLETED)
-  - Smart progress tracking with quick actions
+
 - **User Lists**: Organize anime into watching, completed, plan-to-watch, and dropped lists
 - **Personalized Recommendations**: Collaborative filtering-based recommendation system
 - **Social Features**:
