@@ -8,7 +8,11 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: cd backend && npm install && npx prisma generate && npm run build
+    buildCommand: |
+      cd backend
+      npm install --legacy-peer-deps
+      npx prisma generate
+      npm run build
     startCommand: cd backend && npx prisma migrate deploy && npm run start:prod
     envVars:
       - key: NODE_ENV
@@ -39,18 +43,24 @@ services:
         value: https://graphql.anilist.co
       - key: FILLERLIST_API_URL
         value: https://www.animefillerlist.com/api
+      - key: FRONTEND_URL
+        sync: false  # Set to your frontend URL for CORS
     healthCheckPath: /api
 
   # Frontend (Next.js)
   - type: web
     name: myanime-frontend
     env: node
+    region: oregon
     plan: free
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: |
+      cd frontend
+      npm install --legacy-peer-deps
+      npm run build
     startCommand: cd frontend && npm run start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        sync: false  # Will be set to backend URL after deployment
+        value: https://myanime-backend.onrender.com  # Update with your actual backend URL
       - key: NEXTAUTH_URL
         sync: false  # Will be set to frontend URL after deployment
       - key: NEXTAUTH_SECRET
