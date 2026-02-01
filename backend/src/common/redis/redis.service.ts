@@ -10,6 +10,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       socket: {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT) || 6379,
+        // Enable TLS for production/Upstash Redis
+        tls: process.env.NODE_ENV === 'production' || process.env.REDIS_PASSWORD ? true : undefined,
       },
     };
 
