@@ -89,11 +89,20 @@ Ensure you've pulled the latest render.yaml from the repo.
 
 ### Issue: Frontend fails with status 1 during build
 
-**Solution**: This is usually due to missing environment variables during build:
+**Root Cause**: Two issues:
+1. Missing environment variables during build
+2. npm workspaces interference from root package.json
+
+**Solution**:
 1. Verify `NEXT_PUBLIC_API_URL` is set in render.yaml or environment tab
 2. The variable must be available at BUILD TIME (not just runtime)
-3. Update render.yaml line ~63 with your actual backend URL
-4. Redeploy after updating
+3. Update render.yaml line ~71 with your actual backend URL
+4. The build command now temporarily moves root package.json to prevent workspace conflicts
+5. Redeploy after updating
+
+**If still failing**: Check the build logs for the exact error:
+- Look for "npm error workspace" - indicates workspace interference (should be fixed by the package.json move)
+- Look for "NEXT_PUBLIC_API_URL is not defined" - environment variable issue
 
 ### Issue: Frontend fails with "Invalid API URL" at runtime
 

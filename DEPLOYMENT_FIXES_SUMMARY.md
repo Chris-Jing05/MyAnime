@@ -7,10 +7,22 @@
 
 **Fix Applied**: Changed from `rootDir` approach to explicit directory navigation with multiline build commands.
 
-### Frontend Error (Status 1 - Build Failed)
-**Root Cause**: Missing `NEXT_PUBLIC_API_URL` environment variable during build time. Next.js requires this variable to be available when building.
+### Frontend Error (Status 1 - Build Failed - UPDATED FIX)
+**Root Causes**:
+1. Missing `NEXT_PUBLIC_API_URL` environment variable during build time
+2. **npm workspaces interference** - The root `package.json` contains workspace configuration that interferes with standalone service builds
 
-**Fix Applied**: Added default value in render.yaml that can be updated before deployment.
+**Fixes Applied**:
+1. Added default value for `NEXT_PUBLIC_API_URL` in render.yaml
+2. **Temporarily move root package.json during build** - This prevents npm from detecting the workspace configuration:
+```bash
+mv package.json package.json.bak || true
+cd frontend
+npm install --legacy-peer-deps
+npm run build
+cd ..
+mv package.json.bak package.json || true
+```
 
 ## Changes Made
 
@@ -22,12 +34,18 @@
 **Backend changes**:
 ```yaml
 buildCommand: |
+  mv package.json package.json.bak || true
   cd backend
+  rm -f package-lock.json
   npm install --legacy-peer-deps
   npx prisma generate
   npm run build
+  cd ..
+  mv package.json.bak package.json || true
 ```
 - Removed `rootDir` directive
+- **Temporarily moves root package.json to avoid workspace conflicts**
+- Removes package-lock.json to ensure clean install
 - Added explicit `cd backend` command
 - Added `--legacy-peer-deps` flag to handle workspace dependencies
 - Added `FRONTEND_URL` environment variable for CORS
@@ -35,11 +53,17 @@ buildCommand: |
 **Frontend changes**:
 ```yaml
 buildCommand: |
+  mv package.json package.json.bak || true
   cd frontend
+  rm -f package-lock.json
   npm install --legacy-peer-deps
   npm run build
+  cd ..
+  mv package.json.bak package.json || true
 ```
 - Removed `rootDir` directive
+- **Temporarily moves root package.json to avoid workspace conflicts**
+- Removes package-lock.json to ensure clean install
 - Added explicit `cd frontend` command
 - Added `--legacy-peer-deps` flag
 - Set default `NEXT_PUBLIC_API_URL` value (must be updated to match your backend)
