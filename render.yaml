@@ -9,16 +9,12 @@ services:
     region: oregon
     plan: free
     buildCommand: |
-      mv package.json package.json.bak || true
       cd backend
       rm -f package-lock.json
-      npm install --legacy-peer-deps
+      npm install --legacy-peer-deps --workspaces=false
       npx prisma generate
       npm run build
-      cd ..
-      mv package.json.bak package.json || true
     startCommand: |
-      mv package.json package.json.bak || true
       cd backend
       npx prisma migrate deploy
       npm run start:prod
@@ -62,15 +58,11 @@ services:
     region: oregon
     plan: free
     buildCommand: |
-      mv package.json package.json.bak || true
       cd frontend
       rm -f package-lock.json
-      npm install --legacy-peer-deps
+      npm install --legacy-peer-deps --workspaces=false
       npm run build
-      cd ..
-      mv package.json.bak package.json || true
     startCommand: |
-      mv package.json package.json.bak || true
       cd frontend
       npm run start
     envVars:
