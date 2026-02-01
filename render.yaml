@@ -27,12 +27,10 @@ services:
         sync: false  # Set manually from Upstash
       - key: JWT_SECRET
         generateValue: true
-        sync: false
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: NEXTAUTH_SECRET
         generateValue: true
-        sync: false
       - key: THROTTLE_TTL
         value: 60
       - key: THROTTLE_LIMIT
@@ -46,15 +44,10 @@ services:
   # Frontend (Next.js)
   - type: web
     name: myanime-frontend
-    env: static
-    region: oregon
+    env: node
     plan: free
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/.next
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    startCommand: cd frontend && npm run start
     envVars:
       - key: NEXT_PUBLIC_API_URL
         sync: false  # Will be set to backend URL after deployment
@@ -62,6 +55,8 @@ services:
         sync: false  # Will be set to frontend URL after deployment
       - key: NEXTAUTH_SECRET
         sync: false  # Must match backend
+      - key: NODE_ENV
+        value: production
 
 databases:
   - name: myanime-postgres
