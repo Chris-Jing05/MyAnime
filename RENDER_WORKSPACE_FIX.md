@@ -10,20 +10,27 @@ npm error command failed
 ```
 
 ### Root Cause
-Your project uses **npm workspaces** (defined in the root `package.json`). When Render tries to build the frontend or backend service:
+Your project uses **npm workspaces** (defined in the root `package.json`). When Render tries to build AND start the services:
 
+**During Build:**
 1. The build script runs `cd frontend`
 2. npm install runs inside the frontend directory
 3. **BUT** npm detects the parent `package.json` with workspace configuration
 4. npm tries to install as a workspace member instead of standalone
-5. Build fails because of workspace context conflicts
+5. Build fails with "npm error workspace"
 
-## The Fix
+**During Start (NEW ISSUE):**
+1. Build completes successfully (after our first fix)
+2. Start command runs `npm run start`
+3. npm AGAIN detects the workspace configuration
+4. Fails with "npm error workspace" and "Could not find production build"
 
-Updated `render.yaml` to **temporarily hide the root package.json** during each service's build:
+## The Fix (UPDATED - v2)
+
+Updated `render.yaml` to **temporarily hide the root package.json** during BOTH build AND start:
 
 ```yaml
-# Frontend build (similar for backend)
+# Frontend (similar for backend)
 buildCommand: |
   mv package.json package.json.bak || true    # Hide workspace config
   cd frontend
@@ -31,10 +38,15 @@ buildCommand: |
   npm install --legacy-peer-deps              # Install standalone
   npm run build                               # Build
   cd ..
-  mv package.json.bak package.json || true    # Restore (optional)
+  mv package.json.bak package.json || true    # Restore
+
+startCommand: |
+  mv package.json package.json.bak || true    # Hide workspace config again
+  cd frontend
+  npm run start                               # Start without workspace interference
 ```
 
-This prevents npm from detecting the workspace configuration, allowing each service to install and build independently.
+**Key Change**: The `startCommand` ALSO moves package.json to prevent workspace detection during runtime. We don't restore it at the end because the start command keeps running.
 
 ## What You Need to Do Now
 

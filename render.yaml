@@ -17,7 +17,11 @@ services:
       npm run build
       cd ..
       mv package.json.bak package.json || true
-    startCommand: cd backend && npx prisma migrate deploy && npm run start:prod
+    startCommand: |
+      mv package.json package.json.bak || true
+      cd backend
+      npx prisma migrate deploy
+      npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
@@ -65,7 +69,10 @@ services:
       npm run build
       cd ..
       mv package.json.bak package.json || true
-    startCommand: cd frontend && npm run start
+    startCommand: |
+      mv package.json package.json.bak || true
+      cd frontend
+      npm run start
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://myanime-backend.onrender.com  # Update with your actual backend URL

@@ -24,13 +24,19 @@ cd ..
 mv package.json.bak package.json || true
 ```
 
+## Update Log
+
+**v2 (Latest)**: Fixed start command workspace interference
+**v1**: Fixed build command workspace interference
+**v0**: Initial deployment configuration
+
 ## Changes Made
 
 ### 1. Added Node.js Version Files
 - `.nvmrc` in root, backend, and frontend directories
 - Specifies Node.js v20.18.1 for consistent builds
 
-### 2. Updated render.yaml
+### 2. Updated render.yaml (v2 - includes start command fix)
 **Backend changes**:
 ```yaml
 buildCommand: |
@@ -42,9 +48,16 @@ buildCommand: |
   npm run build
   cd ..
   mv package.json.bak package.json || true
+
+startCommand: |
+  mv package.json package.json.bak || true
+  cd backend
+  npx prisma migrate deploy
+  npm run start:prod
 ```
 - Removed `rootDir` directive
-- **Temporarily moves root package.json to avoid workspace conflicts**
+- **Temporarily moves root package.json during BUILD to avoid workspace conflicts**
+- **ALSO moves package.json during START to avoid workspace detection at runtime**
 - Removes package-lock.json to ensure clean install
 - Added explicit `cd backend` command
 - Added `--legacy-peer-deps` flag to handle workspace dependencies
@@ -60,9 +73,15 @@ buildCommand: |
   npm run build
   cd ..
   mv package.json.bak package.json || true
+
+startCommand: |
+  mv package.json package.json.bak || true
+  cd frontend
+  npm run start
 ```
 - Removed `rootDir` directive
-- **Temporarily moves root package.json to avoid workspace conflicts**
+- **Temporarily moves root package.json during BUILD to avoid workspace conflicts**
+- **ALSO moves package.json during START to avoid workspace detection at runtime**
 - Removes package-lock.json to ensure clean install
 - Added explicit `cd frontend` command
 - Added `--legacy-peer-deps` flag
